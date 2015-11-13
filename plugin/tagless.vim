@@ -1,7 +1,31 @@
+"author: reid horuff
+
+function! SetSettings()
+  if !exists('g:tagless_context_lines')
+    let g:tagless_context_lines=3
+  endif
+
+  if !exists('g:tagless_window_height')
+    let g:tagless_window_height=30
+  endif
+
+  if !exists('g:tagless_highlight_result')
+    let g:tagless_highlight_result=1
+  endif
+
+  if !exists('g:tagless_enable_shitty_syntax_highlighting')
+    let g:tagless_enable_shitty_syntax_highlighting=1
+  endif
+
+  if !exists('g:tagless_infer_file_types')
+    let g:tagless_infer_file_types=1
+  endif
+endfunction
+
 function! GotoFileWithLineNum()
   let path = expand('<cfile>')
   if !strlen(path)
-    echo 'NO FILE UNDER CURSOR'
+    echo 'no file under cursor'
     return
   endif
 
@@ -16,8 +40,6 @@ function! GotoFileWithLineNum()
     let path = getcwd() . "/" . path
   endif
 
-  echo path
-
   if filereadable(path)
     close
     exe 'e '.path
@@ -30,27 +52,44 @@ function! GotoFileWithLineNum()
 endfunction
 
 function! Tagless()
+  call SetSettings()
+
   let cw = expand('<cword>')
   let cur_ft = &filetype
   let cur_syn = &syntax
   let include = ''
 
-  if cur_ft == 'cpp'
-    let include = "--include='*.cc' --include='*.cpp' --include='*.h'"
-  elseif cur_ft == 'sql'
-    let include = "--include='*.sql' --include='*.test' --include='*.result'"
+  if g:tagless_infer_file_types
+    if cur_ft == 'cpp'
+      let include = "--include='*.cc' --include='*.cpp' --include='*.h'"
+    elseif cur_ft == 'sql'
+      let include = "--include='*.sql' --include='*.test' --include='*.result'"
+    endif
   endif
 
+  "create window
   silent! exe "noautocmd botright pedit grep"
   noautocmd wincmd P
   set buftype=nofile
-  exe "read !grep -rinI -B 2 -A 2 --group-separator=' ' ".include." ".cw
+
+  "exec command and pipe into new window
+  exe "read !grep -rinI -C ".g:tagless_context_lines." --group-separator=' ' ".include." ".cw
+
+  "move to top
   exe 0
-  setlocal winheight=30
-  exe "set syntax=".cur_syn
-  set nohlsearch
-  let @/ ="".cw
-  set hlsearch
+
+  exe 'setlocal winheight='.g:tagless_window_height
+
+  if g:tagless_enable_shitty_syntax_highlighting
+    exe "set syntax=".cur_syn
+  endif
+
+  if g:tagless_highlight_result
+    set nohlsearch
+    let @/ ="".cw
+    set hlsearch
+  endif
+
   nnoremap <buffer> <CR> :call GotoFileWithLineNum()<CR>
 endfunction
 
