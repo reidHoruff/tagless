@@ -23,6 +23,7 @@ function! SetSettings()
 endfunction
 
 function! GotoFileWithLineNum()
+  normal 0
   let path = expand('<cfile>')
   if !strlen(path)
     echo 'no file under cursor'
@@ -75,8 +76,7 @@ function! Tagless()
   "exec command and pipe into new window
   exe "read !grep -rinI -C ".g:tagless_context_lines." --group-separator=' ' ".include." ".cw
 
-  "move to top
-  exe 0
+  normal gg
 
   exe 'setlocal winheight='.g:tagless_window_height
 
@@ -85,9 +85,8 @@ function! Tagless()
   endif
 
   if g:tagless_highlight_result
-    set nohlsearch
-    let @/ ="".cw
-    set hlsearch
+    exe 'normal! /'.cw
+    normal ggn
   endif
 
   nnoremap <buffer> <CR> :call GotoFileWithLineNum()<CR>
