@@ -2,13 +2,13 @@
 Simple grep execution because tags never work that well...
 
 ##Installation 
-###Vundle
+####Vundle
 add `Plugin 'reidHoruff/tagless'` to your ~/.vimrc then `so%` and `:BundleInstall`
 
-###Pathogen
+####Pathogen
 ?
 
-#Configs
+##Configs
 ```vim
 "number of context lines to display
 let g:tagless_context_lines=3
