@@ -65,6 +65,10 @@ function! Tagless()
       let include = "--include='*.cc' --include='*.cpp' --include='*.h'"
     elseif cur_ft == 'sql'
       let include = "--include='*.sql' --include='*.test' --include='*.result'"
+    elseif cur_ft == 'perl'
+      let include = "--include='*.perl' --include='*.test'"
+    elseif cur_ft == 'python'
+      let include = "--include='*.py'"
     endif
   endif
 
@@ -82,11 +86,6 @@ function! Tagless()
 
   if g:tagless_enable_shitty_syntax_highlighting
     exe "set syntax=".cur_syn
-  endif
-
-  if g:tagless_highlight_result
-    exe 'normal! /'.cw
-    normal ggn
   endif
 
   nnoremap <buffer> <CR> :call GotoFileWithLineNum()<CR>
